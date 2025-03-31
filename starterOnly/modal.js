@@ -90,7 +90,80 @@ form.addEventListener("submit", function (event) {
   } else {
     resetErrorElement(emailElement);
   }
-  
+
+  // vérification de champ date de naisance non vide & âge du participant supérieur à 18 ans
+  dateNaiss = new Date(dateNaissanceElement.value);
+  const validDateNaiss18 = valider18ans(dateNaiss);
+
+  if (dateNaissanceElement.value === "") {
+    errors.push({
+      fieldName: "date de naissance",
+      message: "La date de naissance est obligatoire.",
+    });
+    dateNaissanceElement.closest(".formData").dataset.error =
+      "La date de naissance est obligatoire.";
+    setErrorElement(dateNaissanceElement);
+  } else if (validDateNaiss18 === false) {
+    errors.push({
+      fieldName: "âge minimum",
+      message: "Vous devez avoir au moins 18 ans pour participer au concours.",
+    });
+    dateNaissanceElement.closest(".formData").dataset.error =
+      "Vous devez avoir au moins 18 ans pour participer au concours.";
+    setErrorElement(dateNaissanceElement);
+  } else {
+    resetErrorElement(dateNaissanceElement);
+  }
+
+  // vérification du nombre de concours auxquels le user a déjà participé saisi par l'utilisateur
+  const nbConcours = nbConcoursElement.value;
+  const validNbConcours = validerNbConcours(nbConcours);
+  if (validNbConcours === false) {
+    errors.push({
+      fieldName: "nombre de concours",
+      message: "Le nombre de concours doit être un nombre entier positif.",
+    });
+    setErrorElement(nbConcoursElement);
+  } else {
+    resetErrorElement(nbConcoursElement);
+  }
+
+  // vérification des boutons radios pour s'assurer de la sélection d'une ville
+  if (validerBtnRadioVille() === false) {
+    errors.push({
+      fieldName: "ville",
+      message: "Vous devez sélectionner une ville.",
+    });
+    setErrorElement(listBtnRadiovilleElement);
+  } else {
+    resetErrorElement(listBtnRadiovilleElement);
+  }
+
+  // vérification de la case à cocher pour confirmer l'acceptation des conditions d'utilisation
+  if (validerAccepterConditions() === false) {
+    errors.push({
+      fieldName: "conditions d'utilisation",
+      message: "Vous devez accepter les conditions d'utilisation.",
+    });
+    setErrorElement(accepterConditionsElement);
+  } else {
+    resetErrorElement(accepterConditionsElement);
+  }
+
+  // vérifie si le tableau d'erreurs est vide
+  if (errors.length > 0) {
+    let errorMessage = "";
+    errors.forEach((error) => {
+      errorMessage += `${error.fieldName} : ${error.message}\n`;
+    });
+    return false;
+  } else {
+    // afficher le message de confirmation
+    form.reset(); // On réinitialise le formulaire
+    const formModal = document.getElementById("formModal");
+    formModal.style.display = "none";
+    modalConfirm.style.display = "block";
+  }
 });
 
 /**
@@ -128,6 +201,88 @@ function validerEmail(email) {
  }
  return true;
 }
+
+/**
+ * Cette fonction prend une date en paramètre et vérifie si le champs n'est pas vide
+ * @param {Date} dateNaiss
+ */
+function validerChampsNonVide(dateNaiss) {
+  if (!dateNaiss) {
+    return false; // Le champ est vide
+  } else {
+    return true;
+  }
+}
+
+/**
+ * Cette fonction prend une date en paramètre et vérifie si le user a plus de 18 ans
+ * ici : deux caractères au minimum
+ * @param {Date} dateNaiss
+ */
+function valider18ans(dateNaiss) {
+  const maintenant = new Date();
+  const ageMinimum = 18;
+  const date = new Date(dateNaiss);
+  let age = maintenant.getFullYear() - date.getFullYear();
+  const moisDifference = maintenant.getMonth() - date.getMonth();
+  if (
+    moisDifference < 0 ||
+    (moisDifference === 0 && maintenant.getDate() < date.getDate())
+  ) {
+    age--; // On n'a pas encore atteint l'anniversaire
+  }
+  return age >= ageMinimum;
+}
+
+/**
+ * Cette fonction prend un string en paramètre et valide qu'il est au bon format.
+ * @param {string} nbConcours
+ */
+function validerNbConcours(nbConcours) {
+  let quantityRegExp = new RegExp("^\\d+$");
+  if (!quantityRegExp.test(nbConcours)) {
+    return false;
+  }
+  return true;
+}
+
+
+ // fonction qui vérifie les boutons radios afin de s'assurer qu'une ville a bien été sélectionnée
+function validerBtnRadioVille() {
+  let listBtnRadioville = document.querySelectorAll('input[name="location"]');
+  let location = "";
+  for (let i = 0; i < listBtnRadioville.length; i++) {
+    if (listBtnRadioville[i].checked) {
+      location = listBtnRadioville[i].value;
+      break;
+    }
+  }
+
+  if (location === "") {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+// fonction qui vérifie que la case à cocher a bien été cochée pour les conditions d'utilisation
+function validerAccepterConditions() {
+  let baliseAccepter = document.getElementById("checkbox1");
+  let accepter = baliseAccepter.checked;
+  if (!accepter) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+// Cette fonction vérifie si la case à cocher pour les événements à venir a été cochée ou pas 
+function validerPrchEvenmnt() {
+  let balisePrchEvenmnt = document.getElementById("checkbox2");
+  let PrchEvenmnt = balisePrchEvenmnt.checked;
+  console.log(PrchEvenmnt); // affiche true ou false dans la console mais pourrait déclencher l'envoi d'un mail dans une version plus évoluée du projet
+}
+
 
 function setErrorElement(input) {
   const errorEl = input.closest(".formData");
