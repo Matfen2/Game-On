@@ -34,6 +34,27 @@ function closeModal() {
   modalConfirm.style.display = "none";
 }
 
+// Evenement du formulaire de réservation
+// Form Ligne 60
+const form = document.querySelector('form[name="reserve"]');
+
+// Ajout d'un écouteur d'évènement "submit" sur le formulaire
+form.addEventListener("submit", function (event) {
+  // Empeche le formulaire de se soumettre
+  event.preventDefault();
+
+  // Initialisation du tableau des erreurs
+  const errors = [];
+
+  // Sélectionner tous les élements du formulaire
+  const prenomElement = document.getElementById("first");
+  const nomElement = document.getElementById("last");
+  const emailElement = document.getElementById("email");
+  const dateNaissanceElement = document.getElementById("birthdate");
+  const nbConcoursElement = document.getElementById("quantity");
+  const listBtnRadiovilleElement = document.getElementById("choixVille");
+  const accepterConditionsElement = document.getElementById("checkbox1");
+});
 
 
 // launch modal event
